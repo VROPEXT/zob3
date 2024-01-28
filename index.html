@@ -1,0 +1,269 @@
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #ffffff; /* Fond blanc */
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        header {
+            background-color: #333;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .search-bar {
+            max-width: 600px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .search-bar input {
+            padding: 8px;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .search-bar button {
+            padding: 8px;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            background-color: #4CAF50; /* Couleur de bouton vert */
+            color: white;
+            cursor: pointer;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        #user-profile {
+            display: none;
+            cursor: pointer;
+            background-color: #4CAF50; /* Couleur de bouton vert */
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .login-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #f0f0f0; /* Fond gris clair pour la boîte de connexion */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .login-modal input {
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+
+        .login-modal button {
+            padding: 10px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .main {
+            text-align: center;
+            padding: 20px;
+            color: #333; /* Couleur du texte principal */
+        }
+
+        .publish-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #f0f0f0; /* Fond gris clair pour la zone de publication */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .published-text {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #fff; /* Fond blanc pour la boîte de déconnexion */
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logout-modal button {
+            padding: 10px;
+            border: none;
+            background-color: #ff4444; /* Couleur de bouton rouge */
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+    <title>Votre Site Web</title>
+</head>
+<body>
+
+    <header>
+        <div class="search-bar">
+            <input type="text" placeholder="Rechercher...">
+            <button type="button">Rechercher</button>
+        </div>
+        <div class="user-actions">
+            <span id="user-profile" onclick="editUsername()">Profil</span>
+            <button id="login-btn" onclick="toggleLogin()">Se connecter</button>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="publish-container">
+            <textarea placeholder="Écrivez votre texte ici..."></textarea>
+            <button type="button" onclick="publishText()">Publier</button>
+        </div>
+        <div id="publishedText" class="published-text"></div>
+    </main>
+
+    <div id="login-modal" class="login-modal">
+        <input type="text" id="email-input" placeholder="Votre adresse e-mail">
+        <button onclick="login()">Se connecter</button>
+    </div>
+
+    <div id="logout-modal" class="logout-modal">
+        <button onclick="logout()">Se déconnecter</button>
+        <button onclick="editUsername()">Changer de pseudo</button>
+    </div>
+
+    <script>
+        var loggedIn = false;
+        var username = "";
+
+        function toggleLogin() {
+            var loginBtn = document.getElementById('login-btn');
+            if (loggedIn) {
+                logout();
+                closeLogoutModal();
+            } else {
+                openLoginModal();
+            }
+            updateUI();
+        }
+
+        function openLoginModal() {
+            var loginModal = document.getElementById('login-modal');
+            loginModal.style.display = 'block';
+        }
+
+        function login() {
+            var email = document.getElementById('email-input').value;
+            if (email && email.endsWith('@gmail.com')) {
+                loggedIn = true;
+                username = email.split('@')[0];
+                closeLoginModal();
+            }
+            updateUI();
+        }
+
+        function closeLoginModal() {
+            var loginModal = document.getElementById('login-modal');
+            loginModal.style.display = 'none';
+        }
+
+        function editUsername() {
+            var newUsername = prompt("Modifiez votre pseudo :", username);
+            if (newUsername) {
+                username = newUsername;
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            var userProfile = document.getElementById('user-profile');
+            var loginBtn = document.getElementById('login-btn');
+
+            if (loggedIn) {
+                userProfile.style.display = 'inline-block';
+                userProfile.textContent = username;
+                userProfile.style.backgroundColor = '#4CAF50'; // Vert
+                loginBtn.textContent = 'Se déconnecter';
+                loginBtn.style.backgroundColor = '#ff4444'; // Rouge
+            } else {
+                userProfile.style.display = 'none';
+                loginBtn.textContent = 'Se connecter';
+                loginBtn.style.backgroundColor = '#4CAF50'; // Vert
+            }
+        }
+
+        function publishText() {
+            var textAreaValue = document.querySelector('textarea').value;
+            var publishedTextDiv = document.getElementById('publishedText');
+
+            if (loggedIn) {
+                publishedTextDiv.innerHTML += "<p><strong>" + username + ":</strong> " + textAreaValue + "</p>";
+            } else {
+                publishedTextDiv.innerHTML += "<p>" + textAreaValue + "</p>";
+            }
+        }
+
+        function logout() {
+            loggedIn = false;
+            username = "";
+            updateUI();
+            openLogoutModal();
+        }
+
+        function openLogoutModal() {
+            var logoutModal = document.getElementById('logout-modal');
+            logoutModal.style.display = 'block';
+        }
+
+        function closeLogoutModal() {
+            var logoutModal = document.getElementById('logout-modal');
+            logoutModal.style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
